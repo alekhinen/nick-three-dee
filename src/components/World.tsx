@@ -2,8 +2,8 @@ import { Canvas } from "@react-three/fiber";
 import { Environment, KeyboardControls } from "@react-three/drei";
 import { useRef } from "react";
 import { DumpTruckScene, type DumpTruckHandle } from "./DumpTruckScene";
+import { TruckCamera } from "./TruckCamera";
 import { TruckController } from "./TruckController";
-import { WorldCamera } from "./WorldCamera";
 
 const cameraDefaultPosition = [-7, 6, 8] as const;
 const TRUCK_GROUND_OFFSET = 0.89;
@@ -19,7 +19,7 @@ export function World() {
     <KeyboardControls map={keyMap}>
       <Canvas camera={{ position: cameraDefaultPosition }} shadows="variance">
         <color attach="background" args={["white"]} />
-        <WorldCamera />
+        <TruckCamera truckRef={truckRef} />
         <Environment preset="city" environmentIntensity={0.5} />
         <directionalLight
           castShadow
