@@ -6,11 +6,16 @@ Source: https://sketchfab.com/3d-models/dumptruck-qCWXrNLMlMOEtD5rcS0zOKbdkbB
 Title: DumpTruck
 */
 
-import React, { useRef } from "react";
+import type { ComponentProps } from "react";
 import { useGLTF } from "@react-three/drei";
+import type { Material, Mesh } from "three";
 
-export function DumpTruckScene(props) {
-  const { nodes, materials } = useGLTF("/dumptruck.glb");
+export function DumpTruckScene(props: ComponentProps<"group">) {
+  const { nodes, materials } = useGLTF("/dumptruck.glb") as unknown as {
+    nodes: Record<string, Mesh>;
+    materials: Record<string, Material>;
+  };
+
   return (
     <group {...props} dispose={null}>
       <group rotation={[-Math.PI / 2, 0, 0]}>
