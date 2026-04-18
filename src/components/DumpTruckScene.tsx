@@ -21,7 +21,9 @@ export type DumpTruckHandle = {
   };
 };
 
-type Props = ComponentProps<"group"> & { ref?: Ref<DumpTruckHandle> };
+type Props = Omit<ComponentProps<"group">, "ref"> & {
+  ref?: Ref<DumpTruckHandle>;
+};
 
 export function DumpTruckScene({ ref, ...props }: Props) {
   const { nodes, materials } = useGLTF("/three-dee-truck.glb") as unknown as {
