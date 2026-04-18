@@ -21,12 +21,12 @@ export function World() {
     <KeyboardControls map={keyMap}>
       <Canvas camera={{ position: cameraDefaultPosition }} shadows="variance">
         <color attach="background" args={["white"]} />
-        <TruckCamera truckRef={truckRef} />
-        <Environment preset="city" environmentIntensity={0.5} />
-        <SunLight truckRef={truckRef} />
-        <Ground truckRef={truckRef} />
         <DumpTruckScene ref={truckRef} position={[0, TRUCK_GROUND_OFFSET, 0]} />
         <TruckController truckRef={truckRef} />
+        <TruckCamera truckRef={truckRef} />
+        <SunLight truckRef={truckRef} />
+        <Ground truckRef={truckRef} />
+        <Environment preset="city" environmentIntensity={0.5} />
       </Canvas>
     </KeyboardControls>
   );
