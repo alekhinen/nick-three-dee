@@ -32,6 +32,7 @@ export function DumpTruckScene(props) {
           geometry={nodes.Object_4.geometry}
           material={materials.Default}
         />
+        {/* wheel component - tires */}
         <mesh
           castShadow
           receiveShadow
@@ -44,18 +45,21 @@ export function DumpTruckScene(props) {
           geometry={nodes.Object_6.geometry}
           material={materials.Grille}
         />
+        {/* wheel component - lug nuts */}
         <mesh
           castShadow
           receiveShadow
           geometry={nodes.Object_7.geometry}
           material={materials.Lug_032Nuts}
         />
+        {/* wheel component */}
         <mesh
           castShadow
           receiveShadow
           geometry={nodes.Object_8.geometry}
           material={materials.Rim_032Holes}
         />
+        {/* wheel component */}
         <mesh
           castShadow
           receiveShadow

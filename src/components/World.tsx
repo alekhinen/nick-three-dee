@@ -3,7 +3,7 @@ import { DumpTruckScene } from "./DumpTruckScene";
 import { Stage } from "@react-three/drei";
 import { WorldCamera } from "./WorldCamera";
 
-const cameraDefaultPosition = [-9, 8, 10] as const;
+const cameraDefaultPosition = [-7, 6, 8] as const;
 
 export function World() {
   return (
