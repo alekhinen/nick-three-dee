@@ -34,16 +34,20 @@ export function TruckCamera({
       ctrl.update();
       return;
     }
-    delta.set(
-      root.position.x,
-      root.position.y + LOOK_HEIGHT,
-      root.position.z,
-    );
+    delta.set(root.position.x, root.position.y + LOOK_HEIGHT, root.position.z);
     delta.sub(ctrl.target);
     ctrl.target.add(delta);
     camera.position.add(delta);
     ctrl.update();
   });
 
-  return <OrbitControls ref={controls} makeDefault enablePan={false} />;
+  return (
+    <OrbitControls
+      ref={controls}
+      makeDefault
+      enablePan={false}
+      minPolarAngle={0}
+      maxPolarAngle={(Math.PI / 180) * 75}
+    />
+  );
 }
