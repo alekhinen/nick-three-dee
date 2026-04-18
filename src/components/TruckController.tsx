@@ -16,16 +16,28 @@ export function TruckController({
 
   useFrame((_, dt) => {
     const handle = truckRef.current;
-    if (!handle) return;
+    if (!handle) {
+      return;
+    }
     const { forward, back } = get();
     const dir = forward ? 1 : back ? -1 : 0;
-    if (dir === 0) return;
+    if (dir === 0) {
+      return;
+    }
     const delta = dir * WHEEL_SPEED * dt;
     const { bl, br, fl, fr } = handle.wheels;
-    if (bl) bl.rotation.x += delta;
-    if (br) br.rotation.x += delta;
-    if (fl) fl.rotation.x += delta;
-    if (fr) fr.rotation.x += delta;
+    if (bl) {
+      bl.rotation.x += delta;
+    }
+    if (br) {
+      br.rotation.x += delta;
+    }
+    if (fl) {
+      fl.rotation.x += delta;
+    }
+    if (fr) {
+      fr.rotation.x += delta;
+    }
   });
 
   return null;
