@@ -1,4 +1,4 @@
-import { Canvas, type Vector3 } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { DumpTruckScene } from "./DumpTruckScene";
 import { Stage } from "@react-three/drei";
 import { WorldCamera } from "./WorldCamera";
