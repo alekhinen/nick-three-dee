@@ -12,6 +12,7 @@ import { useGLTF } from "@react-three/drei";
 import type { Group, Material, Mesh } from "three";
 
 export type DumpTruckHandle = {
+  root: Group | null;
   wheels: {
     bl: Group | null;
     br: Group | null;
@@ -28,6 +29,7 @@ export function DumpTruckScene({ ref, ...props }: Props) {
     materials: Record<string, Material>;
   };
 
+  const rootRef = useRef<Group>(null);
   const blRef = useRef<Group>(null);
   const brRef = useRef<Group>(null);
   const flRef = useRef<Group>(null);
@@ -36,6 +38,9 @@ export function DumpTruckScene({ ref, ...props }: Props) {
   useImperativeHandle(
     ref,
     () => ({
+      get root() {
+        return rootRef.current;
+      },
       get wheels() {
         return {
           bl: blRef.current,
@@ -49,7 +54,7 @@ export function DumpTruckScene({ ref, ...props }: Props) {
   );
 
   return (
-    <group {...props} dispose={null}>
+    <group ref={rootRef} {...props} dispose={null}>
       <group rotation={[-Math.PI / 2, 0, 0]}>
         <mesh castShadow receiveShadow geometry={nodes.author_text.geometry} material={materials.UnderBody} />
         <mesh castShadow receiveShadow geometry={nodes.axle_cover.geometry} material={materials.Axle} />

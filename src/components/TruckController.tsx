@@ -4,6 +4,7 @@ import type { RefObject } from "react";
 import type { DumpTruckHandle } from "./DumpTruckScene";
 
 const WHEEL_SPEED = 8;
+const TRUCK_SPEED = 6.6;
 
 type KeyName = "forward" | "back";
 
@@ -37,6 +38,9 @@ export function TruckController({
     }
     if (fr) {
       fr.rotation.x += delta;
+    }
+    if (handle.root) {
+      handle.root.position.z += dir * TRUCK_SPEED * dt;
     }
   });
 
