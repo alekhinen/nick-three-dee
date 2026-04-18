@@ -6,98 +6,108 @@ Source: https://sketchfab.com/3d-models/dumptruck-qCWXrNLMlMOEtD5rcS0zOKbdkbB
 Title: DumpTruck
 */
 
-import type { ComponentProps } from "react";
+import { useImperativeHandle, useRef } from "react";
+import type { ComponentProps, Ref } from "react";
 import { useGLTF } from "@react-three/drei";
-import type { Material, Mesh } from "three";
+import type { Group, Material, Mesh } from "three";
 
-export function DumpTruckScene(props: ComponentProps<"group">) {
-  const { nodes, materials } = useGLTF("/dumptruck.glb") as unknown as {
+export type DumpTruckHandle = {
+  wheels: {
+    bl: Group | null;
+    br: Group | null;
+    fl: Group | null;
+    fr: Group | null;
+  };
+};
+
+type Props = ComponentProps<"group"> & { ref?: Ref<DumpTruckHandle> };
+
+export function DumpTruckScene({ ref, ...props }: Props) {
+  const { nodes, materials } = useGLTF("/three-dee-truck.glb") as unknown as {
     nodes: Record<string, Mesh>;
     materials: Record<string, Material>;
   };
 
+  const blRef = useRef<Group>(null);
+  const brRef = useRef<Group>(null);
+  const flRef = useRef<Group>(null);
+  const frRef = useRef<Group>(null);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      get wheels() {
+        return {
+          bl: blRef.current,
+          br: brRef.current,
+          fl: flRef.current,
+          fr: frRef.current,
+        };
+      },
+    }),
+    [],
+  );
+
   return (
     <group {...props} dispose={null}>
       <group rotation={[-Math.PI / 2, 0, 0]}>
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_2.geometry}
-          material={materials.Axle}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_3.geometry}
-          material={materials.Default}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_4.geometry}
-          material={materials.Default}
-        />
-        {/* wheel component - tires */}
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_5.geometry}
-          material={materials.Default}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_6.geometry}
-          material={materials.Grille}
-        />
-        {/* wheel component - lug nuts */}
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_7.geometry}
-          material={materials.Lug_032Nuts}
-        />
-        {/* wheel component */}
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_8.geometry}
-          material={materials.Rim_032Holes}
-        />
-        {/* wheel component */}
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_9.geometry}
-          material={materials.Rims}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_10.geometry}
-          material={materials.Tail_032Light}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_11.geometry}
-          material={materials.UnderBody}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_12.geometry}
-          material={materials.UnderBody}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Object_13.geometry}
-          material={materials.Windows}
-        />
+        <mesh castShadow receiveShadow geometry={nodes.author_text.geometry} material={materials.UnderBody} />
+        <mesh castShadow receiveShadow geometry={nodes.axle_cover.geometry} material={materials.Axle} />
+        <mesh castShadow receiveShadow geometry={nodes.back_axle.geometry} material={materials.Default} />
+        <mesh castShadow receiveShadow geometry={nodes.front_axle.geometry} material={materials.Default} />
+        <mesh castShadow receiveShadow geometry={nodes.front_grill.geometry} material={materials.Grille} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks001.geometry} material={materials.Default} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks003.geometry} material={materials.Default} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks005.geometry} material={materials.Default} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks007.geometry} material={materials.Default} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks009.geometry} material={materials.Default} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks010.geometry} material={materials.Default} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks012.geometry} material={materials.Default} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks015.geometry} material={materials.Default} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks017.geometry} material={materials.Default} />
+        <mesh castShadow receiveShadow geometry={nodes.tail_lights.geometry} material={materials.Tail_032Light} />
+        <mesh castShadow receiveShadow geometry={nodes.truck_bed.geometry} material={materials.UnderBody} />
+        <mesh castShadow receiveShadow geometry={nodes.truck_body.geometry} material={materials.Default} />
+        <mesh castShadow receiveShadow geometry={nodes.windows.geometry} material={materials.Windows} />
+
+        <group ref={blRef} position={[1.017, 1.96, -0.065]}>
+          <group position={[-1.017, -1.96, 0.065]}>
+            <mesh castShadow receiveShadow geometry={nodes.Object_3161.geometry} material={materials.Default} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3161_1.geometry} material={materials.Lug_032Nuts} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3161_2.geometry} material={materials.Rim_032Holes} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3161_3.geometry} material={materials.Rims} />
+          </group>
+        </group>
+
+        <group ref={brRef} position={[-1.017, 1.96, -0.065]}>
+          <group position={[1.017, -1.96, 0.065]}>
+            <mesh castShadow receiveShadow geometry={nodes.Object_3084.geometry} material={materials.Default} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3084_1.geometry} material={materials.Lug_032Nuts} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3084_2.geometry} material={materials.Rim_032Holes} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3084_3.geometry} material={materials.Rims} />
+          </group>
+        </group>
+
+        <group ref={flRef} position={[1.017, -0.526, -0.147]}>
+          <group position={[-1.017, 0.526, 0.147]}>
+            <mesh castShadow receiveShadow geometry={nodes.Object_3068.geometry} material={materials.Default} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3068_1.geometry} material={materials.Lug_032Nuts} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3068_2.geometry} material={materials.Rim_032Holes} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3068_3.geometry} material={materials.Rims} />
+          </group>
+        </group>
+
+        <group ref={frRef} position={[-1.017, -0.526, -0.147]}>
+          <group position={[1.017, 0.526, 0.147]}>
+            <mesh castShadow receiveShadow geometry={nodes.Object_3072.geometry} material={materials.Default} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3072_1.geometry} material={materials.Lug_032Nuts} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3072_2.geometry} material={materials.Rim_032Holes} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3072_3.geometry} material={materials.Rims} />
+          </group>
+        </group>
       </group>
     </group>
   );
 }
 
-useGLTF.preload("/dumptruck.glb");
+useGLTF.preload("/three-dee-truck.glb");
