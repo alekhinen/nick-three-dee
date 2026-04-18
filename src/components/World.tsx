@@ -1,11 +1,14 @@
 import { Canvas } from "@react-three/fiber";
-import { KeyboardControls, Stage } from "@react-three/drei";
+import { Environment, KeyboardControls } from "@react-three/drei";
 import { useRef } from "react";
 import { DumpTruckScene, type DumpTruckHandle } from "./DumpTruckScene";
+import { Ground } from "./Ground";
+import { SunLight } from "./SunLight";
+import { TruckCamera } from "./TruckCamera";
 import { TruckController } from "./TruckController";
-import { WorldCamera } from "./WorldCamera";
 
 const cameraDefaultPosition = [-7, 6, 8] as const;
+const TRUCK_GROUND_OFFSET = 0.89;
 
 const keyMap = [
   { name: "forward", keys: ["KeyW"] },
@@ -16,17 +19,14 @@ export function World() {
   const truckRef = useRef<DumpTruckHandle>(null);
   return (
     <KeyboardControls map={keyMap}>
-      <Canvas camera={{ position: cameraDefaultPosition }} shadows>
-        <WorldCamera />
-        <Stage
-          adjustCamera={false}
-          intensity={0.5}
-          shadows="contact"
-          environment="city"
-        >
-          <DumpTruckScene ref={truckRef} />
-        </Stage>
+      <Canvas camera={{ position: cameraDefaultPosition }} shadows="variance">
+        <color attach="background" args={["white"]} />
+        <DumpTruckScene ref={truckRef} position={[0, TRUCK_GROUND_OFFSET, 0]} />
         <TruckController truckRef={truckRef} />
+        <TruckCamera truckRef={truckRef} />
+        <SunLight truckRef={truckRef} />
+        <Ground truckRef={truckRef} />
+        <Environment preset="city" environmentIntensity={0.5} />
       </Canvas>
     </KeyboardControls>
   );
