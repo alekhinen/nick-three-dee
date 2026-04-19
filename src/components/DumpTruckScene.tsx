@@ -59,7 +59,7 @@ export function DumpTruckScene({ ref, ...props }: Props) {
     <group ref={rootRef} {...props} dispose={null}>
       <group rotation={[-Math.PI / 2, 0, 0]}>
         <mesh castShadow receiveShadow geometry={nodes.author_text.geometry} material={materials.UnderBody} />
-        <mesh castShadow receiveShadow geometry={nodes.axle_cover.geometry} material={materials.Axle} />
+        <mesh castShadow receiveShadow geometry={nodes.axle_cover.geometry} material={materials.Grille} />
         <mesh castShadow receiveShadow geometry={nodes.back_axle.geometry} material={materials.Default} />
         <mesh castShadow receiveShadow geometry={nodes.back_bumper.geometry} material={materials.UnderBody} />
         <mesh castShadow receiveShadow geometry={nodes.front_axle.geometry} material={materials.Default} />
@@ -67,15 +67,15 @@ export function DumpTruckScene({ ref, ...props }: Props) {
         <mesh castShadow receiveShadow geometry={nodes.front_grill.geometry} material={materials.Grille} />
         <mesh castShadow receiveShadow geometry={nodes.front_light_chrome.geometry} material={materials.UnderBody} />
         <mesh castShadow receiveShadow geometry={nodes.front_lights.geometry} material={materials.Windows} />
-        <mesh castShadow receiveShadow geometry={nodes.rocks001.geometry} material={materials.Default} />
-        <mesh castShadow receiveShadow geometry={nodes.rocks003.geometry} material={materials.Default} />
-        <mesh castShadow receiveShadow geometry={nodes.rocks005.geometry} material={materials.Default} />
-        <mesh castShadow receiveShadow geometry={nodes.rocks007.geometry} material={materials.Default} />
-        <mesh castShadow receiveShadow geometry={nodes.rocks009.geometry} material={materials.Default} />
-        <mesh castShadow receiveShadow geometry={nodes.rocks010.geometry} material={materials.Default} />
-        <mesh castShadow receiveShadow geometry={nodes.rocks012.geometry} material={materials.Default} />
-        <mesh castShadow receiveShadow geometry={nodes.rocks015.geometry} material={materials.Default} />
-        <mesh castShadow receiveShadow geometry={nodes.rocks017.geometry} material={materials.Default} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks001.geometry} material={materials.Rocks} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks003.geometry} material={materials.Rocks} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks005.geometry} material={materials.Rocks} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks007.geometry} material={materials.Rocks} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks009.geometry} material={materials.Rocks} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks010.geometry} material={materials.Rocks} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks012.geometry} material={materials.Rocks} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks015.geometry} material={materials.Rocks} />
+        <mesh castShadow receiveShadow geometry={nodes.rocks017.geometry} material={materials.Rocks} />
         <mesh castShadow receiveShadow geometry={nodes.tail_light_chrome.geometry} material={materials.UnderBody} />
         <mesh castShadow receiveShadow geometry={nodes.tail_lights.geometry} material={materials.Tail_032Light} />
         <mesh castShadow receiveShadow geometry={nodes.truck_bed_platform.geometry} material={materials.UnderBody} />
@@ -87,7 +87,7 @@ export function DumpTruckScene({ ref, ...props }: Props) {
 
         <group ref={blRef} position={[1.017, 1.96, -0.065]}>
           <group position={[-1.017, -1.96, 0.065]}>
-            <mesh castShadow receiveShadow geometry={nodes.Object_3161.geometry} material={materials.Default} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3161.geometry} material={materials.Tires} />
             <mesh castShadow receiveShadow geometry={nodes.Object_3161_1.geometry} material={materials.Lug_032Nuts} />
             <mesh castShadow receiveShadow geometry={nodes.Object_3161_2.geometry} material={materials.Rim_032Holes} />
             <mesh castShadow receiveShadow geometry={nodes.Object_3161_3.geometry} material={materials.Rims} />
@@ -96,7 +96,7 @@ export function DumpTruckScene({ ref, ...props }: Props) {
 
         <group ref={brRef} position={[-1.017, 1.96, -0.065]}>
           <group position={[1.017, -1.96, 0.065]}>
-            <mesh castShadow receiveShadow geometry={nodes.Object_3084.geometry} material={materials.Default} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3084.geometry} material={materials.Tires} />
             <mesh castShadow receiveShadow geometry={nodes.Object_3084_1.geometry} material={materials.Lug_032Nuts} />
             <mesh castShadow receiveShadow geometry={nodes.Object_3084_2.geometry} material={materials.Rim_032Holes} />
             <mesh castShadow receiveShadow geometry={nodes.Object_3084_3.geometry} material={materials.Rims} />
@@ -105,7 +105,7 @@ export function DumpTruckScene({ ref, ...props }: Props) {
 
         <group ref={flRef} position={[1.017, -0.526, -0.147]}>
           <group position={[-1.017, 0.526, 0.147]}>
-            <mesh castShadow receiveShadow geometry={nodes.Object_3068.geometry} material={materials.Default} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3068.geometry} material={materials.Tires} />
             <mesh castShadow receiveShadow geometry={nodes.Object_3068_1.geometry} material={materials.Lug_032Nuts} />
             <mesh castShadow receiveShadow geometry={nodes.Object_3068_2.geometry} material={materials.Rim_032Holes} />
             <mesh castShadow receiveShadow geometry={nodes.Object_3068_3.geometry} material={materials.Rims} />
@@ -114,7 +114,7 @@ export function DumpTruckScene({ ref, ...props }: Props) {
 
         <group ref={frRef} position={[-1.017, -0.526, -0.147]}>
           <group position={[1.017, 0.526, 0.147]}>
-            <mesh castShadow receiveShadow geometry={nodes.Object_3072.geometry} material={materials.Default} />
+            <mesh castShadow receiveShadow geometry={nodes.Object_3072.geometry} material={materials.Tires} />
             <mesh castShadow receiveShadow geometry={nodes.Object_3072_1.geometry} material={materials.Lug_032Nuts} />
             <mesh castShadow receiveShadow geometry={nodes.Object_3072_2.geometry} material={materials.Rim_032Holes} />
             <mesh castShadow receiveShadow geometry={nodes.Object_3072_3.geometry} material={materials.Rims} />
