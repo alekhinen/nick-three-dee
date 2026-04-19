@@ -90,6 +90,7 @@ export function TruckCamera({
   const progressStart = useRef(0);
   const progressTarget = useRef(0);
   const progressStartMs = useRef(0);
+  const dragging = useRef(false);
 
   useFrame((state) => {
     const root = truckRef.current?.root;
@@ -165,11 +166,13 @@ export function TruckCamera({
       progress.current = progressTarget.current;
     }
 
+    // User drag is always allowed; camera stays glued to the truck target.
+    ctrl.enabled = true;
+
     const atRest = progress.current <= 0.0001 && progressTarget.current === 0;
+    const atDrive = progress.current >= 0.9999 && progressTarget.current === 1;
 
     if (atRest) {
-      // Let the user drag to redefine rest, and keep syncing it.
-      ctrl.enabled = true;
       captureRestFromCamera(
         camera.position,
         ctrl.target,
@@ -180,9 +183,32 @@ export function TruckCamera({
       return;
     }
 
-    // Camera is owned by the interpolator; lock user drag.
-    ctrl.enabled = false;
+    if (atDrive) {
+      if (dragging.current) {
+        // Active drag: sync both poses from the camera so the new framing
+        // sticks as the driving lock and carries over to the next rest.
+        captureRestFromCamera(
+          camera.position,
+          ctrl.target,
+          root.rotation.y,
+          drivingPose.current,
+        );
+        restPose.current.radius = drivingPose.current.radius;
+        restPose.current.phi = drivingPose.current.phi;
+        restPose.current.localTheta = drivingPose.current.localTheta;
+      } else {
+        // Idle: lock camera to the stored drivingPose.
+        const drv = drivingPose.current;
+        const worldTheta = drv.localTheta + root.rotation.y;
+        scratchSpherical.set(drv.radius, drv.phi, worldTheta);
+        scratchOffset.setFromSpherical(scratchSpherical);
+        camera.position.copy(ctrl.target).add(scratchOffset);
+      }
+      ctrl.update();
+      return;
+    }
 
+    // Mid-transition: interpolator briefly owns the camera.
     const p = progress.current;
     const rest = restPose.current;
     const drv = drivingPose.current;
@@ -205,6 +231,12 @@ export function TruckCamera({
       enablePan={false}
       minPolarAngle={0}
       maxPolarAngle={(Math.PI / 180) * 75}
+      onStart={() => {
+        dragging.current = true;
+      }}
+      onEnd={() => {
+        dragging.current = false;
+      }}
     />
   );
 }
