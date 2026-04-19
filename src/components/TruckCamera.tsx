@@ -13,13 +13,6 @@ const DEFAULT_PAN_MS = 450;
 const INPUT_THRESHOLD = 0.05;
 const TWO_PI = Math.PI * 2;
 
-// Driving pose, in truck-local spherical coords (theta measured from the
-// truck's forward axis; +π/2 = truck's right/passenger side). Elevated
-// passenger-side profile.
-const DRIVING_RADIUS = 14;
-const DRIVING_PHI = Math.PI * 0.32;
-const DRIVING_LOCAL_THETA = -Math.PI / 2;
-
 const scratchOffset = new Vector3();
 const scratchDelta = new Vector3();
 const scratchSpherical = new Spherical();
@@ -88,9 +81,9 @@ export function TruckCamera({
     localTheta: Math.PI,
   });
   const drivingPose = useRef<Pose>({
-    radius: DRIVING_RADIUS,
-    phi: DRIVING_PHI,
-    localTheta: DRIVING_LOCAL_THETA,
+    radius: 10,
+    phi: Math.PI * 0.4,
+    localTheta: Math.PI,
   });
 
   const progress = useRef(0);
@@ -143,7 +136,8 @@ export function TruckCamera({
     const desiredTarget = active ? 1 : 0;
 
     if (desiredTarget !== progressTarget.current) {
-      // Freeze the current rest pose the moment we leave it.
+      // Freeze the current rest pose the moment we leave it, and snapshot
+      // it as the driving pose too.
       if (progress.current <= 0.0001 && desiredTarget === 1) {
         captureRestFromCamera(
           camera.position,
@@ -151,6 +145,9 @@ export function TruckCamera({
           root.rotation.y,
           restPose.current,
         );
+        drivingPose.current.radius = restPose.current.radius;
+        drivingPose.current.phi = restPose.current.phi;
+        drivingPose.current.localTheta = restPose.current.localTheta;
       }
       progressStart.current = progress.current;
       progressTarget.current = desiredTarget;
