@@ -29,7 +29,7 @@ export function World() {
         <SunLight truckRef={truckRef} />
         <Ground truckRef={truckRef} />
         <Environment preset="city" environmentIntensity={0.5} />
-        <axesHelper args={[5, 5, 5]} />
+        {import.meta.env.DEV && <axesHelper args={[5]} />}
       </Canvas>
     </KeyboardControls>
   );
