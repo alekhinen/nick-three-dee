@@ -3,7 +3,6 @@ import { Environment, KeyboardControls } from "@react-three/drei";
 import { useRef } from "react";
 import { DumpTruckScene, type DumpTruckHandle } from "./DumpTruckScene";
 import { Ground } from "./Ground";
-import { MetallicBlob } from "./MetallicBlob";
 import { MobileControls } from "./MobileControls";
 import { SunLight } from "./SunLight";
 import { TruckCamera } from "./TruckCamera";
