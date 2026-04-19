@@ -9,8 +9,7 @@ import { TruckCamera } from "./TruckCamera";
 import { TruckController } from "./TruckController";
 import { useMobileInputRef } from "./mobileInput";
 
-const cameraDefaultPosition = [-7, 6, 8] as const;
-const TRUCK_GROUND_OFFSET = 0.89;
+const cameraDefaultPosition = [0, 18, 14] as const;
 
 const keyMap = [
   { name: "forward", keys: ["KeyW"] },
@@ -25,12 +24,12 @@ export function World() {
   return (
     <KeyboardControls map={keyMap}>
       <Canvas camera={{ position: cameraDefaultPosition }} shadows="variance">
-        <color attach="background" args={["white"]} />
-        <DumpTruckScene ref={truckRef} position={[0, TRUCK_GROUND_OFFSET, 1]} />
+        <color attach="background" args={["#ffffff"]} />
+        <DumpTruckScene ref={truckRef} />
         <TruckController truckRef={truckRef} mobileInputRef={mobileInputRef} />
         <TruckCamera truckRef={truckRef} mobileInputRef={mobileInputRef} />
-        <SunLight truckRef={truckRef} />
-        <Ground truckRef={truckRef} />
+        <SunLight />
+        <Ground />
         <Environment preset="city" environmentIntensity={0.5} />
         {import.meta.env.DEV && <axesHelper args={[5]} />}
       </Canvas>

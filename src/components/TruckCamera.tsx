@@ -1,21 +1,23 @@
-import { OrbitControls, useKeyboardControls } from "@react-three/drei";
+import { useKeyboardControls } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useRef } from "react";
-import type { ComponentRef, RefObject } from "react";
-import { Spherical, Vector3 } from "three";
+import type { RefObject } from "react";
+import { Vector3 } from "three";
 import type { DumpTruckHandle } from "./DumpTruckScene";
 import type { MobileInputRef } from "./mobileInput";
 
-const LOOK_HEIGHT = 0.5;
-const LOOK_OFFSET_X = 0;
-const LOOK_OFFSET_Z = -0.3;
+const CAMERA_DISTANCE = 7;
+const CAMERA_HEIGHT = 4.5;
+const LOOK_HEIGHT = 0.8;
 const DEFAULT_PAN_MS = 450;
 const DRIVE_THRESHOLD = 0.05;
 const TWO_PI = Math.PI * 2;
 
-const delta = new Vector3();
-const offset = new Vector3();
-const spherical = new Spherical();
+const up = new Vector3();
+const forwardLocal = new Vector3(0, 0, 1);
+const forwardWorld = new Vector3();
+const cameraDir = new Vector3();
+const lookTarget = new Vector3();
 
 type KeyName = "forward" | "back" | "left" | "right";
 type PanMode = "forward" | "back";
@@ -48,45 +50,34 @@ export function TruckCamera({
   mobileInputRef: MobileInputRef;
   panDurationMs?: number;
 }) {
-  const controls = useRef<ComponentRef<typeof OrbitControls>>(null);
-  const initialized = useRef(false);
   const camera = useThree((state) => state.camera);
   const [, get] = useKeyboardControls<KeyName>();
-  const activeMode = useRef<PanMode | null>(null);
+  const activeMode = useRef<PanMode>("forward");
+  const panYaw = useRef(0);
   const panning = useRef(false);
   const panStartTimeMs = useRef(0);
-  const panStartAzimuth = useRef(0);
+  const panStartYaw = useRef(0);
 
   useFrame((state) => {
     const root = truckRef.current?.root;
-    const ctrl = controls.current;
-    if (!root || !ctrl) {
+    if (!root) {
       return;
     }
-    if (!initialized.current) {
-      ctrl.target.set(
-        root.position.x + LOOK_OFFSET_X,
-        root.position.y + LOOK_HEIGHT,
-        root.position.z + LOOK_OFFSET_Z,
-      );
-      initialized.current = true;
-      ctrl.update();
+
+    up.copy(root.position).normalize();
+    forwardWorld.copy(forwardLocal).applyQuaternion(root.quaternion);
+    forwardWorld.addScaledVector(up, -forwardWorld.dot(up));
+    if (forwardWorld.lengthSq() < 1e-8) {
       return;
     }
-    delta.set(
-      root.position.x + LOOK_OFFSET_X,
-      root.position.y + LOOK_HEIGHT,
-      root.position.z + LOOK_OFFSET_Z,
-    );
-    delta.sub(ctrl.target);
-    ctrl.target.add(delta);
-    camera.position.add(delta);
+    forwardWorld.normalize();
 
     const kb = get();
     const mobile = mobileInputRef.current;
     const kbDrive = (kb.forward ? 1 : 0) + (kb.back ? -1 : 0);
     const drive =
       Math.abs(kbDrive) >= Math.abs(mobile.drive) ? kbDrive : mobile.drive;
+
     const nextMode: PanMode | null =
       drive > DRIVE_THRESHOLD
         ? "forward"
@@ -96,54 +87,41 @@ export function TruckCamera({
 
     const nowMs = state.clock.elapsedTime * 1000;
 
-    if (nextMode === null) {
-      activeMode.current = null;
-      panning.current = false;
-    } else if (nextMode !== activeMode.current) {
-      offset.copy(camera.position).sub(ctrl.target);
-      spherical.setFromVector3(offset);
-      panStartAzimuth.current = spherical.theta;
+    if (nextMode !== null && nextMode !== activeMode.current) {
+      panStartYaw.current = panYaw.current;
       panStartTimeMs.current = nowMs;
       panning.current = true;
       activeMode.current = nextMode;
     }
 
-    const mode = activeMode.current;
-    if (mode) {
-      const desiredAzimuth = root.rotation.y + Math.PI;
-
-      let nextAzimuth: number;
-      if (panning.current) {
-        const elapsed = nowMs - panStartTimeMs.current;
-        const t = panDurationMs > 0 ? Math.min(1, elapsed / panDurationMs) : 1;
-        const eased = easeInOutCubic(t);
-        const startAz = panStartAzimuth.current;
-        const diff = shortestAngleDelta(startAz, desiredAzimuth);
-        nextAzimuth = startAz + diff * eased;
-        if (t >= 1) {
-          panning.current = false;
-        }
-      } else {
-        nextAzimuth = desiredAzimuth;
+    const targetYaw = activeMode.current === "forward" ? 0 : Math.PI;
+    if (panning.current) {
+      const elapsed = nowMs - panStartTimeMs.current;
+      const t = panDurationMs > 0 ? Math.min(1, elapsed / panDurationMs) : 1;
+      const eased = easeInOutCubic(t);
+      const diff = shortestAngleDelta(panStartYaw.current, targetYaw);
+      panYaw.current = panStartYaw.current + diff * eased;
+      if (t >= 1) {
+        panning.current = false;
+        panYaw.current = targetYaw;
       }
-
-      offset.copy(camera.position).sub(ctrl.target);
-      spherical.setFromVector3(offset);
-      spherical.theta = nextAzimuth;
-      offset.setFromSpherical(spherical);
-      camera.position.copy(ctrl.target).add(offset);
+    } else {
+      panYaw.current = targetYaw;
     }
 
-    ctrl.update();
+    cameraDir
+      .copy(forwardWorld)
+      .multiplyScalar(-1)
+      .applyAxisAngle(up, panYaw.current);
+
+    camera.position
+      .copy(root.position)
+      .addScaledVector(up, CAMERA_HEIGHT)
+      .addScaledVector(cameraDir, CAMERA_DISTANCE);
+    camera.up.copy(up);
+    lookTarget.copy(root.position).addScaledVector(up, LOOK_HEIGHT);
+    camera.lookAt(lookTarget);
   });
 
-  return (
-    <OrbitControls
-      ref={controls}
-      makeDefault
-      enablePan={false}
-      minPolarAngle={0}
-      maxPolarAngle={(Math.PI / 180) * 75}
-    />
-  );
+  return null;
 }
