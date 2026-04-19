@@ -13,8 +13,8 @@ const DEFAULT_PAN_MS = 450;
 const INPUT_THRESHOLD = 0.05;
 const TWO_PI = Math.PI * 2;
 
-const INTRO_HOLD_MS = 2000;
-const INTRO_PAN_MS = 3000;
+const INTRO_HOLD_MS = 1000;
+const INTRO_PAN_MS = 2500;
 const INTRO_START_POS = new Vector3(6, 75, 0);
 const INTRO_START_Y_ROTATION = Math.PI;
 const INTRO_END_POS = new Vector3(-7, 6, 8);
