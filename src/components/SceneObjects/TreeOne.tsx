@@ -1,7 +1,12 @@
 import { useGLTF } from "@react-three/drei";
+import type { ComponentProps } from "react";
+import type { Material, Mesh } from "three";
 
-export function TreeOne(props) {
-  const { nodes, materials } = useGLTF("/tree-1.glb");
+export function TreeOne(props: ComponentProps<"group">) {
+  const { nodes, materials } = useGLTF("/tree-1.glb") as unknown as {
+    nodes: Record<string, Mesh>;
+    materials: Record<string, Material>;
+  };
   return (
     <group {...props} dispose={null}>
       <mesh
