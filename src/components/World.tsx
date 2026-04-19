@@ -13,6 +13,8 @@ const TRUCK_GROUND_OFFSET = 0.89;
 const keyMap = [
   { name: "forward", keys: ["KeyW"] },
   { name: "back", keys: ["KeyS"] },
+  { name: "left", keys: ["KeyA"] },
+  { name: "right", keys: ["KeyD"] },
 ];
 
 export function World() {
