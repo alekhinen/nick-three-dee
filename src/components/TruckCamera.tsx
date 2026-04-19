@@ -10,25 +10,34 @@ const LOOK_HEIGHT = 0.5;
 const LOOK_OFFSET_X = 0;
 const LOOK_OFFSET_Z = -0.3;
 const DEFAULT_PAN_MS = 450;
-const DRIVE_THRESHOLD = 0.05;
+const INPUT_THRESHOLD = 0.05;
 const TWO_PI = Math.PI * 2;
 
-const delta = new Vector3();
-const offset = new Vector3();
-const spherical = new Spherical();
+const scratchOffset = new Vector3();
+const scratchDelta = new Vector3();
+const scratchSpherical = new Spherical();
 
 type KeyName = "forward" | "back" | "left" | "right";
-type PanMode = "forward" | "back";
 
-function shortestAngleDelta(from: number, to: number): number {
-  let d = (to - from) % TWO_PI;
-  if (d > Math.PI) {
-    d -= TWO_PI;
+type Pose = {
+  radius: number;
+  phi: number;
+  localTheta: number;
+};
+
+function wrapAngle(a: number): number {
+  let x = a % TWO_PI;
+  if (x > Math.PI) {
+    x -= TWO_PI;
   }
-  if (d < -Math.PI) {
-    d += TWO_PI;
+  if (x < -Math.PI) {
+    x += TWO_PI;
   }
-  return d;
+  return x;
+}
+
+function lerpAngle(a: number, b: number, t: number): number {
+  return a + wrapAngle(b - a) * t;
 }
 
 function easeInOutCubic(t: number): number {
@@ -37,6 +46,19 @@ function easeInOutCubic(t: number): number {
   }
   const f = 2 * t - 2;
   return 1 + (f * f * f) / 2;
+}
+
+function captureRestFromCamera(
+  cameraPosition: Vector3,
+  target: Vector3,
+  truckYaw: number,
+  out: Pose,
+): void {
+  scratchOffset.copy(cameraPosition).sub(target);
+  scratchSpherical.setFromVector3(scratchOffset);
+  out.radius = scratchSpherical.radius;
+  out.phi = scratchSpherical.phi;
+  out.localTheta = scratchSpherical.theta - truckYaw;
 }
 
 export function TruckCamera({
@@ -52,10 +74,23 @@ export function TruckCamera({
   const initialized = useRef(false);
   const camera = useThree((state) => state.camera);
   const [, get] = useKeyboardControls<KeyName>();
-  const activeMode = useRef<PanMode | null>(null);
-  const panning = useRef(false);
-  const panStartTimeMs = useRef(0);
-  const panStartAzimuth = useRef(0);
+
+  const restPose = useRef<Pose>({
+    radius: 10,
+    phi: Math.PI * 0.4,
+    localTheta: Math.PI,
+  });
+  const drivingPose = useRef<Pose>({
+    radius: 10,
+    phi: Math.PI * 0.4,
+    localTheta: Math.PI,
+  });
+
+  const progress = useRef(0);
+  const progressStart = useRef(0);
+  const progressTarget = useRef(0);
+  const progressStartMs = useRef(0);
+  const dragging = useRef(false);
 
   useFrame((state) => {
     const root = truckRef.current?.root;
@@ -63,76 +98,128 @@ export function TruckCamera({
     if (!root || !ctrl) {
       return;
     }
+
+    const targetX = root.position.x + LOOK_OFFSET_X;
+    const targetY = root.position.y + LOOK_HEIGHT;
+    const targetZ = root.position.z + LOOK_OFFSET_Z;
+
     if (!initialized.current) {
-      ctrl.target.set(
-        root.position.x + LOOK_OFFSET_X,
-        root.position.y + LOOK_HEIGHT,
-        root.position.z + LOOK_OFFSET_Z,
-      );
+      ctrl.target.set(targetX, targetY, targetZ);
       initialized.current = true;
+      captureRestFromCamera(
+        camera.position,
+        ctrl.target,
+        root.rotation.y,
+        restPose.current,
+      );
       ctrl.update();
       return;
     }
-    delta.set(
-      root.position.x + LOOK_OFFSET_X,
-      root.position.y + LOOK_HEIGHT,
-      root.position.z + LOOK_OFFSET_Z,
-    );
-    delta.sub(ctrl.target);
-    ctrl.target.add(delta);
-    camera.position.add(delta);
+
+    // Keep the orbit target glued to the truck; move camera with it so the
+    // user's framing is preserved when the truck drives.
+    scratchDelta.set(targetX, targetY, targetZ).sub(ctrl.target);
+    ctrl.target.add(scratchDelta);
+    camera.position.add(scratchDelta);
 
     const kb = get();
     const mobile = mobileInputRef.current;
     const kbDrive = (kb.forward ? 1 : 0) + (kb.back ? -1 : 0);
+    const kbSteer = (kb.left ? 1 : 0) + (kb.right ? -1 : 0);
     const drive =
       Math.abs(kbDrive) >= Math.abs(mobile.drive) ? kbDrive : mobile.drive;
-    const nextMode: PanMode | null =
-      drive > DRIVE_THRESHOLD
-        ? "forward"
-        : drive < -DRIVE_THRESHOLD
-          ? "back"
-          : null;
+    const steer =
+      Math.abs(kbSteer) >= Math.abs(mobile.steer) ? kbSteer : mobile.steer;
+    const active =
+      Math.abs(drive) > INPUT_THRESHOLD || Math.abs(steer) > INPUT_THRESHOLD;
 
     const nowMs = state.clock.elapsedTime * 1000;
+    const desiredTarget = active ? 1 : 0;
 
-    if (nextMode === null) {
-      activeMode.current = null;
-      panning.current = false;
-    } else if (nextMode !== activeMode.current) {
-      offset.copy(camera.position).sub(ctrl.target);
-      spherical.setFromVector3(offset);
-      panStartAzimuth.current = spherical.theta;
-      panStartTimeMs.current = nowMs;
-      panning.current = true;
-      activeMode.current = nextMode;
-    }
-
-    const mode = activeMode.current;
-    if (mode) {
-      const desiredAzimuth = root.rotation.y + Math.PI;
-
-      let nextAzimuth: number;
-      if (panning.current) {
-        const elapsed = nowMs - panStartTimeMs.current;
-        const t = panDurationMs > 0 ? Math.min(1, elapsed / panDurationMs) : 1;
-        const eased = easeInOutCubic(t);
-        const startAz = panStartAzimuth.current;
-        const diff = shortestAngleDelta(startAz, desiredAzimuth);
-        nextAzimuth = startAz + diff * eased;
-        if (t >= 1) {
-          panning.current = false;
-        }
-      } else {
-        nextAzimuth = desiredAzimuth;
+    if (desiredTarget !== progressTarget.current) {
+      // Freeze the current rest pose the moment we leave it, and snapshot
+      // it as the driving pose too.
+      if (progress.current <= 0.0001 && desiredTarget === 1) {
+        captureRestFromCamera(
+          camera.position,
+          ctrl.target,
+          root.rotation.y,
+          restPose.current,
+        );
+        drivingPose.current.radius = restPose.current.radius;
+        drivingPose.current.phi = restPose.current.phi;
+        drivingPose.current.localTheta = restPose.current.localTheta;
       }
-
-      offset.copy(camera.position).sub(ctrl.target);
-      spherical.setFromVector3(offset);
-      spherical.theta = nextAzimuth;
-      offset.setFromSpherical(spherical);
-      camera.position.copy(ctrl.target).add(offset);
+      progressStart.current = progress.current;
+      progressTarget.current = desiredTarget;
+      progressStartMs.current = nowMs;
     }
+
+    if (panDurationMs > 0) {
+      const elapsed = nowMs - progressStartMs.current;
+      const t = Math.min(1, elapsed / panDurationMs);
+      const eased = easeInOutCubic(t);
+      progress.current =
+        progressStart.current +
+        (progressTarget.current - progressStart.current) * eased;
+    } else {
+      progress.current = progressTarget.current;
+    }
+
+    // User drag is always allowed; camera stays glued to the truck target.
+    ctrl.enabled = true;
+
+    const atRest = progress.current <= 0.0001 && progressTarget.current === 0;
+    const atDrive = progress.current >= 0.9999 && progressTarget.current === 1;
+
+    if (atRest) {
+      captureRestFromCamera(
+        camera.position,
+        ctrl.target,
+        root.rotation.y,
+        restPose.current,
+      );
+      ctrl.update();
+      return;
+    }
+
+    if (atDrive) {
+      if (dragging.current) {
+        // Active drag: sync both poses from the camera so the new framing
+        // sticks as the driving lock and carries over to the next rest.
+        captureRestFromCamera(
+          camera.position,
+          ctrl.target,
+          root.rotation.y,
+          drivingPose.current,
+        );
+        restPose.current.radius = drivingPose.current.radius;
+        restPose.current.phi = drivingPose.current.phi;
+        restPose.current.localTheta = drivingPose.current.localTheta;
+      } else {
+        // Idle: lock camera to the stored drivingPose.
+        const drv = drivingPose.current;
+        const worldTheta = drv.localTheta + root.rotation.y;
+        scratchSpherical.set(drv.radius, drv.phi, worldTheta);
+        scratchOffset.setFromSpherical(scratchSpherical);
+        camera.position.copy(ctrl.target).add(scratchOffset);
+      }
+      ctrl.update();
+      return;
+    }
+
+    // Mid-transition: interpolator briefly owns the camera.
+    const p = progress.current;
+    const rest = restPose.current;
+    const drv = drivingPose.current;
+    const radius = rest.radius + (drv.radius - rest.radius) * p;
+    const phi = rest.phi + (drv.phi - rest.phi) * p;
+    const localTheta = lerpAngle(rest.localTheta, drv.localTheta, p);
+    const worldTheta = localTheta + root.rotation.y;
+
+    scratchSpherical.set(radius, phi, worldTheta);
+    scratchOffset.setFromSpherical(scratchSpherical);
+    camera.position.copy(ctrl.target).add(scratchOffset);
 
     ctrl.update();
   });
@@ -144,6 +231,12 @@ export function TruckCamera({
       enablePan={false}
       minPolarAngle={0}
       maxPolarAngle={(Math.PI / 180) * 75}
+      onStart={() => {
+        dragging.current = true;
+      }}
+      onEnd={() => {
+        dragging.current = false;
+      }}
     />
   );
 }
