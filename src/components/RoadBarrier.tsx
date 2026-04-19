@@ -1,7 +1,8 @@
 import { useGLTF } from "@react-three/drei";
+import type { ComponentProps } from "react";
 import type { Material, Mesh } from "three";
 
-export function RoadBarrier(props) {
+export function RoadBarrier(props: ComponentProps<"group">) {
   const { nodes, materials } = useGLTF("/road-barrier.glb") as unknown as {
     nodes: Record<string, Mesh>;
     materials: Record<string, Material>;
