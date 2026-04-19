@@ -2,8 +2,8 @@
 
 ## Game Controls
 
-- W/S forward + reverse movement
-- A/D left + right front wheel rotation
+- DONE W/S forward + reverse movement
+- DONE A/D left + right front wheel rotation
 - Space bar to dump the rocks.
 - R to reset the scene
 - L to turn on the lights
@@ -11,4 +11,12 @@
 ## Environment
 
 - Misty particle effect
-- Custom lighting across the wheels and all that.
+- DONE Custom lighting across the wheels and all that.
+
+## Animation
+
+- Encounter with blob needs to have some kind of life event. maybe it flattens completely out on the ground when you approach it?
+
+## Mobile Controls
+
+- Purple bars (vertical, horizontal) with knobs that snap back to center position
