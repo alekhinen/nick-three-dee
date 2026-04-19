@@ -10,6 +10,7 @@ const LOOK_HEIGHT = 0.5;
 const LOOK_OFFSET_X = 0;
 const LOOK_OFFSET_Z = -0.3;
 const DEFAULT_PAN_MS = 450;
+const DRIVE_THRESHOLD = 0.05;
 const TWO_PI = Math.PI * 2;
 
 const delta = new Vector3();
@@ -83,9 +84,15 @@ export function TruckCamera({
 
     const kb = get();
     const mobile = mobileInputRef.current;
-    const forward = kb.forward || mobile.forward;
-    const back = kb.back || mobile.back;
-    const nextMode: PanMode | null = forward ? "forward" : back ? "back" : null;
+    const kbDrive = (kb.forward ? 1 : 0) + (kb.back ? -1 : 0);
+    const drive =
+      Math.abs(kbDrive) >= Math.abs(mobile.drive) ? kbDrive : mobile.drive;
+    const nextMode: PanMode | null =
+      drive > DRIVE_THRESHOLD
+        ? "forward"
+        : drive < -DRIVE_THRESHOLD
+          ? "back"
+          : null;
 
     const nowMs = state.clock.elapsedTime * 1000;
 

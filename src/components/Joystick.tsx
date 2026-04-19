@@ -5,7 +5,7 @@ const KNOB_SIZE = 32;
 const MAX_TRAVEL = TRACK_HEIGHT / 2;
 const DEAD_ZONE = 0.25;
 
-export type JoystickValue = -1 | 0 | 1;
+export type JoystickValue = number;
 
 export function Joystick({
   onChange,
@@ -70,10 +70,11 @@ export function Joystick({
     setKnobOffset(clamped);
 
     const normalized = -clamped / MAX_TRAVEL;
+    const scale = 1 - DEAD_ZONE;
     if (normalized > DEAD_ZONE) {
-      emit(1);
+      emit((normalized - DEAD_ZONE) / scale);
     } else if (normalized < -DEAD_ZONE) {
-      emit(-1);
+      emit((normalized + DEAD_ZONE) / scale);
     } else {
       emit(0);
     }

@@ -33,13 +33,11 @@ export function MobileControls({ inputRef }: { inputRef: MobileInputRef }) {
   }
 
   const handleDrive = (v: JoystickValue) => {
-    inputRef.current.forward = v === 1;
-    inputRef.current.back = v === -1;
+    inputRef.current.drive = v;
   };
 
   const handleSteer = (v: JoystickValue) => {
-    inputRef.current.left = v === 1;
-    inputRef.current.right = v === -1;
+    inputRef.current.steer = v;
   };
 
   return (

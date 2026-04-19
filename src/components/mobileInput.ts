@@ -1,20 +1,16 @@
 import { useRef, type RefObject } from "react";
 
 export type MobileInputState = {
-  forward: boolean;
-  back: boolean;
-  left: boolean;
-  right: boolean;
+  drive: number;
+  steer: number;
 };
 
 export type MobileInputRef = RefObject<MobileInputState>;
 
 export function useMobileInputRef(): MobileInputRef {
   const ref = useRef<MobileInputState>({
-    forward: false,
-    back: false,
-    left: false,
-    right: false,
+    drive: 0,
+    steer: 0,
   });
   return ref;
 }

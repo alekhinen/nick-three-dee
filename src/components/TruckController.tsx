@@ -12,6 +12,10 @@ const WHEELBASE = 2.486;
 
 type KeyName = "forward" | "back" | "left" | "right";
 
+function maxMagnitude(a: number, b: number): number {
+  return Math.abs(a) >= Math.abs(b) ? a : b;
+}
+
 export function TruckController({
   truckRef,
   mobileInputRef,
@@ -29,13 +33,10 @@ export function TruckController({
     }
     const kb = get();
     const mobile = mobileInputRef.current;
-    const forward = kb.forward || mobile.forward;
-    const back = kb.back || mobile.back;
-    const left = kb.left || mobile.left;
-    const right = kb.right || mobile.right;
-
-    const dir = forward ? 1 : back ? -1 : 0;
-    const steerInput = left ? 1 : right ? -1 : 0;
+    const kbDrive = (kb.forward ? 1 : 0) + (kb.back ? -1 : 0);
+    const kbSteer = (kb.left ? 1 : 0) + (kb.right ? -1 : 0);
+    const drive = maxMagnitude(kbDrive, mobile.drive);
+    const steerInput = maxMagnitude(kbSteer, mobile.steer);
 
     const targetSteer = steerInput * MAX_STEER;
     const currentSteer = steerAngleRef.current;
@@ -55,8 +56,8 @@ export function TruckController({
       fr.rotation.z = nextSteer;
     }
 
-    if (dir !== 0) {
-      const rollDelta = dir * WHEEL_SPEED * dt;
+    if (drive !== 0) {
+      const rollDelta = drive * WHEEL_SPEED * dt;
       if (bl) {
         bl.rotation.x += rollDelta;
       }
@@ -71,7 +72,7 @@ export function TruckController({
       }
 
       if (handle.root) {
-        const v = dir * TRUCK_SPEED;
+        const v = drive * TRUCK_SPEED;
         handle.root.rotation.y += (v * Math.tan(nextSteer) * dt) / WHEELBASE;
         const yaw = handle.root.rotation.y;
         handle.root.position.x += Math.sin(yaw) * v * dt;
