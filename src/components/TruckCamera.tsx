@@ -13,8 +13,16 @@ const DEFAULT_PAN_MS = 450;
 const INPUT_THRESHOLD = 0.05;
 const TWO_PI = Math.PI * 2;
 
+const INTRO_HOLD_MS = 1000;
+const INTRO_PAN_MS = 2500;
+const INTRO_START_POS = new Vector3(6, 75, 0);
+const INTRO_START_Y_ROTATION = Math.PI;
+const INTRO_END_POS = new Vector3(-7, 6, 8);
+
+const WORLD_UP = new Vector3(0, 1, 0);
 const scratchOffset = new Vector3();
 const scratchDelta = new Vector3();
+const scratchStart = new Vector3();
 const scratchSpherical = new Spherical();
 
 type KeyName = "forward" | "back" | "left" | "right";
@@ -91,6 +99,7 @@ export function TruckCamera({
   const progressTarget = useRef(0);
   const progressStartMs = useRef(0);
   const dragging = useRef(false);
+  const introStartMs = useRef<number | null>(null);
 
   useFrame((state) => {
     const root = truckRef.current?.root;
@@ -102,6 +111,30 @@ export function TruckCamera({
     const targetX = root.position.x + LOOK_OFFSET_X;
     const targetY = root.position.y + LOOK_HEIGHT;
     const targetZ = root.position.z + LOOK_OFFSET_Z;
+
+    const nowMs = state.clock.elapsedTime * 1000;
+    if (introStartMs.current === null) {
+      introStartMs.current = nowMs;
+    }
+    const introElapsed = nowMs - introStartMs.current;
+    if (introElapsed < INTRO_HOLD_MS + INTRO_PAN_MS) {
+      ctrl.target.set(targetX, targetY, targetZ);
+      scratchStart
+        .copy(INTRO_START_POS)
+        .sub(ctrl.target)
+        .applyAxisAngle(WORLD_UP, INTRO_START_Y_ROTATION)
+        .add(ctrl.target);
+      if (introElapsed < INTRO_HOLD_MS) {
+        camera.position.copy(scratchStart);
+      } else {
+        const t = Math.min(1, (introElapsed - INTRO_HOLD_MS) / INTRO_PAN_MS);
+        const eased = easeInOutCubic(t);
+        camera.position.lerpVectors(scratchStart, INTRO_END_POS, eased);
+      }
+      ctrl.enabled = false;
+      ctrl.update();
+      return;
+    }
 
     if (!initialized.current) {
       ctrl.target.set(targetX, targetY, targetZ);
@@ -133,7 +166,6 @@ export function TruckCamera({
     const active =
       Math.abs(drive) > INPUT_THRESHOLD || Math.abs(steer) > INPUT_THRESHOLD;
 
-    const nowMs = state.clock.elapsedTime * 1000;
     const desiredTarget = active ? 1 : 0;
 
     if (desiredTarget !== progressTarget.current) {
