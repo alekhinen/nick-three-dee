@@ -8,7 +8,10 @@ import { SunLight } from "./SunLight";
 import { TruckCamera } from "./TruckCamera";
 import { TruckController } from "./TruckController";
 import { useMobileInputRef } from "./mobileInput";
-import { RoadBarrier } from "./RoadBarrier";
+import { RoadBarrier } from "./SceneObjects/RoadBarrier";
+import { TreeOne } from "./SceneObjects/TreeOne";
+import { TreeTwo } from "./SceneObjects/TreeTwo";
+import { TreeThree } from "./SceneObjects/TreeThree";
 
 const cameraDefaultPosition = [-7, 6, 8] as const;
 const TRUCK_GROUND_OFFSET = 0.89;
@@ -31,7 +34,7 @@ export function World() {
         <TruckController truckRef={truckRef} mobileInputRef={mobileInputRef} />
         <TruckCamera truckRef={truckRef} mobileInputRef={mobileInputRef} />
         <SunLight truckRef={truckRef} />
-        <Ground truckRef={truckRef} />
+        <Ground />
         <Environment preset="city" environmentIntensity={0.5} />
         <RoadBarrier rotation-y={Math.PI / 2} position={[-3, 0, 0]} />
         <RoadBarrier rotation-y={Math.PI / 2} position={[3, 0, 0]} />
@@ -39,6 +42,9 @@ export function World() {
         <RoadBarrier rotation-y={Math.PI / 2} position={[3, 0, 4]} />
         <RoadBarrier rotation-y={Math.PI / 2} position={[-3, 0, 8]} />
         <RoadBarrier rotation-y={Math.PI / 2} position={[3, 0, 8]} />
+        <TreeOne />
+        <TreeTwo />
+        <TreeThree />
         {import.meta.env.DEV && <axesHelper args={[5]} />}
       </Canvas>
       <MobileControls inputRef={mobileInputRef} />
