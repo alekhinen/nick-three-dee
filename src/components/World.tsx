@@ -13,7 +13,7 @@ import { TreeOne } from "./SceneObjects/TreeOne";
 import { TreeTwo } from "./SceneObjects/TreeTwo";
 import { TreeThree } from "./SceneObjects/TreeThree";
 
-const cameraDefaultPosition = [-7, 6, 8] as const;
+const cameraDefaultPosition = [6, 75, 0] as const;
 const TRUCK_GROUND_OFFSET = 0.89;
 
 const keyMap = [
