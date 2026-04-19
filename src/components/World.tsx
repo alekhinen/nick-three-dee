@@ -34,7 +34,7 @@ export function World() {
         <TruckController truckRef={truckRef} mobileInputRef={mobileInputRef} />
         <TruckCamera truckRef={truckRef} mobileInputRef={mobileInputRef} />
         <SunLight truckRef={truckRef} />
-        <Ground truckRef={truckRef} />
+        <Ground />
         <Environment preset="city" environmentIntensity={0.5} />
         <RoadBarrier rotation-y={Math.PI / 2} position={[-3, 0, 0]} />
         <RoadBarrier rotation-y={Math.PI / 2} position={[3, 0, 0]} />

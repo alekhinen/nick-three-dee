@@ -34,10 +34,10 @@ export function SunLight({
       castShadow
       intensity={1.5}
       shadow-mapSize={[2048, 2048]}
-      shadow-camera-left={-8}
-      shadow-camera-right={8}
-      shadow-camera-top={8}
-      shadow-camera-bottom={-8}
+      shadow-camera-left={-25}
+      shadow-camera-right={25}
+      shadow-camera-top={25}
+      shadow-camera-bottom={-25}
       shadow-camera-near={0.1}
       shadow-camera-far={60}
       shadow-normalBias={0.05}
