@@ -3,7 +3,6 @@ import { Environment, KeyboardControls } from "@react-three/drei";
 import { useRef } from "react";
 import { DumpTruckScene, type DumpTruckHandle } from "./DumpTruckScene";
 import { Ground } from "./Ground";
-import { MetallicBlob } from "./MetallicBlob";
 import { MobileControls } from "./MobileControls";
 import { SunLight } from "./SunLight";
 import { TruckCamera } from "./TruckCamera";
@@ -28,7 +27,6 @@ export function World() {
       <Canvas camera={{ position: cameraDefaultPosition }} shadows="variance">
         <color attach="background" args={["white"]} />
         <DumpTruckScene ref={truckRef} position={[0, TRUCK_GROUND_OFFSET, 1]} />
-        <MetallicBlob radius={2} position={[6, 4, 0]} />
         <TruckController truckRef={truckRef} mobileInputRef={mobileInputRef} />
         <TruckCamera truckRef={truckRef} mobileInputRef={mobileInputRef} />
         <SunLight truckRef={truckRef} />
