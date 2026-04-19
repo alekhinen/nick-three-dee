@@ -13,6 +13,8 @@ const TRUCK_GROUND_OFFSET = 0.89;
 const keyMap = [
   { name: "forward", keys: ["KeyW"] },
   { name: "back", keys: ["KeyS"] },
+  { name: "left", keys: ["KeyA"] },
+  { name: "right", keys: ["KeyD"] },
 ];
 
 export function World() {
@@ -21,12 +23,13 @@ export function World() {
     <KeyboardControls map={keyMap}>
       <Canvas camera={{ position: cameraDefaultPosition }} shadows="variance">
         <color attach="background" args={["white"]} />
-        <DumpTruckScene ref={truckRef} position={[0, TRUCK_GROUND_OFFSET, 0]} />
+        <DumpTruckScene ref={truckRef} position={[0, TRUCK_GROUND_OFFSET, 1]} />
         <TruckController truckRef={truckRef} />
         <TruckCamera truckRef={truckRef} />
         <SunLight truckRef={truckRef} />
         <Ground truckRef={truckRef} />
         <Environment preset="city" environmentIntensity={0.5} />
+        {import.meta.env.DEV && <axesHelper args={[5]} />}
       </Canvas>
     </KeyboardControls>
   );

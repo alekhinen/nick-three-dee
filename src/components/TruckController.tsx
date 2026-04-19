@@ -1,12 +1,15 @@
 import { useFrame } from "@react-three/fiber";
 import { useKeyboardControls } from "@react-three/drei";
-import type { RefObject } from "react";
+import { useRef, type RefObject } from "react";
 import type { DumpTruckHandle } from "./DumpTruckScene";
 
 const WHEEL_SPEED = 8;
 const TRUCK_SPEED = 6.6;
+const MAX_STEER = Math.PI / 6;
+const STEER_RATE = MAX_STEER / 0.25;
+const WHEELBASE = 2.486;
 
-type KeyName = "forward" | "back";
+type KeyName = "forward" | "back" | "left" | "right";
 
 export function TruckController({
   truckRef,
@@ -14,33 +17,57 @@ export function TruckController({
   truckRef: RefObject<DumpTruckHandle | null>;
 }) {
   const [, get] = useKeyboardControls<KeyName>();
+  const steerAngleRef = useRef(0);
 
   useFrame((_, dt) => {
     const handle = truckRef.current;
     if (!handle) {
       return;
     }
-    const { forward, back } = get();
+    const { forward, back, left, right } = get();
     const dir = forward ? 1 : back ? -1 : 0;
-    if (dir === 0) {
-      return;
-    }
-    const delta = dir * WHEEL_SPEED * dt;
+    const steerInput = left ? 1 : right ? -1 : 0;
+
+    const targetSteer = steerInput * MAX_STEER;
+    const currentSteer = steerAngleRef.current;
+    const maxStep = STEER_RATE * dt;
+    const diff = targetSteer - currentSteer;
+    const step = Math.max(-maxStep, Math.min(maxStep, diff));
+    const nextSteer = currentSteer + step;
+    steerAngleRef.current = nextSteer;
+
     const { bl, br, fl, fr } = handle.wheels;
-    if (bl) {
-      bl.rotation.x += delta;
-    }
-    if (br) {
-      br.rotation.x += delta;
-    }
     if (fl) {
-      fl.rotation.x += delta;
+      fl.rotation.order = "ZYX";
+      fl.rotation.z = nextSteer;
     }
     if (fr) {
-      fr.rotation.x += delta;
+      fr.rotation.order = "ZYX";
+      fr.rotation.z = nextSteer;
     }
-    if (handle.root) {
-      handle.root.position.z += dir * TRUCK_SPEED * dt;
+
+    if (dir !== 0) {
+      const rollDelta = dir * WHEEL_SPEED * dt;
+      if (bl) {
+        bl.rotation.x += rollDelta;
+      }
+      if (br) {
+        br.rotation.x += rollDelta;
+      }
+      if (fl) {
+        fl.rotation.x += rollDelta;
+      }
+      if (fr) {
+        fr.rotation.x += rollDelta;
+      }
+
+      if (handle.root) {
+        const v = dir * TRUCK_SPEED;
+        handle.root.rotation.y += (v * Math.tan(nextSteer) * dt) / WHEELBASE;
+        const yaw = handle.root.rotation.y;
+        handle.root.position.x += Math.sin(yaw) * v * dt;
+        handle.root.position.z += Math.cos(yaw) * v * dt;
+      }
     }
   });
 
