@@ -8,6 +8,7 @@ import { SunLight } from "./SunLight";
 import { TruckCamera } from "./TruckCamera";
 import { TruckController } from "./TruckController";
 import { useMobileInputRef } from "./mobileInput";
+import { RoadBarrier } from "./RoadBarrier";
 
 const cameraDefaultPosition = [-7, 6, 8] as const;
 const TRUCK_GROUND_OFFSET = 0.89;
@@ -32,6 +33,12 @@ export function World() {
         <SunLight truckRef={truckRef} />
         <Ground truckRef={truckRef} />
         <Environment preset="city" environmentIntensity={0.5} />
+        <RoadBarrier rotation-y={Math.PI / 2} position={[-3, 0, 0]} />
+        <RoadBarrier rotation-y={Math.PI / 2} position={[3, 0, 0]} />
+        <RoadBarrier rotation-y={Math.PI / 2} position={[-3, 0, 4]} />
+        <RoadBarrier rotation-y={Math.PI / 2} position={[3, 0, 4]} />
+        <RoadBarrier rotation-y={Math.PI / 2} position={[-3, 0, 8]} />
+        <RoadBarrier rotation-y={Math.PI / 2} position={[3, 0, 8]} />
         {import.meta.env.DEV && <axesHelper args={[5]} />}
       </Canvas>
       <MobileControls inputRef={mobileInputRef} />
