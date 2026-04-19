@@ -30,7 +30,7 @@ export function World() {
         <DumpTruckScene ref={truckRef} position={[0, TRUCK_GROUND_OFFSET, 1]} />
         <MetallicBlob radius={2} position={[6, 4, 0]} />
         <TruckController truckRef={truckRef} mobileInputRef={mobileInputRef} />
-        <TruckCamera truckRef={truckRef} />
+        <TruckCamera truckRef={truckRef} mobileInputRef={mobileInputRef} />
         <SunLight truckRef={truckRef} />
         <Ground truckRef={truckRef} />
         <Environment preset="city" environmentIntensity={0.5} />
