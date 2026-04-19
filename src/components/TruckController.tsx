@@ -2,6 +2,7 @@ import { useFrame } from "@react-three/fiber";
 import { useKeyboardControls } from "@react-three/drei";
 import { useRef, type RefObject } from "react";
 import type { DumpTruckHandle } from "./DumpTruckScene";
+import type { MobileInputRef } from "./mobileInput";
 
 const WHEEL_SPEED = 8;
 const TRUCK_SPEED = 6.6;
@@ -13,8 +14,10 @@ type KeyName = "forward" | "back" | "left" | "right";
 
 export function TruckController({
   truckRef,
+  mobileInputRef,
 }: {
   truckRef: RefObject<DumpTruckHandle | null>;
+  mobileInputRef: MobileInputRef;
 }) {
   const [, get] = useKeyboardControls<KeyName>();
   const steerAngleRef = useRef(0);
@@ -24,7 +27,13 @@ export function TruckController({
     if (!handle) {
       return;
     }
-    const { forward, back, left, right } = get();
+    const kb = get();
+    const mobile = mobileInputRef.current;
+    const forward = kb.forward || mobile.forward;
+    const back = kb.back || mobile.back;
+    const left = kb.left || mobile.left;
+    const right = kb.right || mobile.right;
+
     const dir = forward ? 1 : back ? -1 : 0;
     const steerInput = left ? 1 : right ? -1 : 0;
 

@@ -1,0 +1,49 @@
+.mobile-controls {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 32px 48px calc(32px + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.joystick {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+}
+
+.joystick-track {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background-color: #d45edf;
+  transform: translateX(-50%);
+}
+
+.joystick-knob {
+  position: relative;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: #f5d9f7;
+  border: 1px solid #d45edf;
+  touch-action: none;
+  user-select: none;
+  will-change: transform;
+  transform: translateY(0);
+}
+
+.joystick-knob.snapping {
+  transition: transform 180ms ease-out;
+}
