@@ -1,15 +1,22 @@
 import { useGLTF } from "@react-three/drei";
+import { RigidBody } from "@react-three/rapier";
 import type { ComponentProps } from "react";
 import type { Material, Mesh } from "three";
 
-export function RoadBarrier(props: ComponentProps<"group">) {
+export function RoadBarrier(props: ComponentProps<typeof RigidBody>) {
   const { nodes, materials } = useGLTF("/road-barrier.glb") as unknown as {
     nodes: Record<string, Mesh>;
     materials: Record<string, Material>;
   };
 
   return (
-    <group {...props} dispose={null}>
+    <RigidBody
+      type="dynamic"
+      colliders="cuboid"
+      linearDamping={0.8}
+      angularDamping={0.8}
+      {...props}
+    >
       <mesh
         castShadow
         receiveShadow
@@ -26,7 +33,7 @@ export function RoadBarrier(props: ComponentProps<"group">) {
         rotation={[Math.PI, 0, 0]}
         scale={[0.112, 0.103, 0.066]}
       />
-    </group>
+    </RigidBody>
   );
 }
 

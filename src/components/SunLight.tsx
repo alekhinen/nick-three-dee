@@ -16,15 +16,16 @@ export function SunLight({
   const lightRef = useRef<DirectionalLight>(null);
 
   useFrame(() => {
-    const root = truckRef.current?.root;
+    const body = truckRef.current?.body;
     const light = lightRef.current;
-    if (!root || !light) {
+    if (!body || !light) {
       return;
     }
-    light.position.x = root.position.x + OFFSET_X;
-    light.position.y = root.position.y + OFFSET_Y;
-    light.position.z = root.position.z + OFFSET_Z;
-    light.target.position.copy(root.position);
+    const pos = body.translation();
+    light.position.x = pos.x + OFFSET_X;
+    light.position.y = pos.y + OFFSET_Y;
+    light.position.z = pos.z + OFFSET_Z;
+    light.target.position.set(pos.x, pos.y, pos.z);
     light.target.updateMatrixWorld();
   });
 
