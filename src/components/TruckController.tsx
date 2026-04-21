@@ -31,6 +31,10 @@ export function TruckController({
     if (!handle) {
       return;
     }
+    const body = handle.body;
+    if (!body) {
+      return;
+    }
     const kb = get();
     const mobile = mobileInputRef.current;
     const kbDrive = (kb.forward ? 1 : 0) + (kb.back ? -1 : 0);
@@ -70,15 +74,16 @@ export function TruckController({
       if (fr) {
         fr.rotation.x += rollDelta;
       }
-
-      if (handle.root) {
-        const v = drive * TRUCK_SPEED;
-        handle.root.rotation.y += (v * Math.tan(nextSteer) * dt) / WHEELBASE;
-        const yaw = handle.root.rotation.y;
-        handle.root.position.x += Math.sin(yaw) * v * dt;
-        handle.root.position.z += Math.cos(yaw) * v * dt;
-      }
     }
+
+    const q = body.rotation();
+    const yaw = 2 * Math.atan2(q.y, q.w);
+    const v = drive * TRUCK_SPEED;
+    const yawRate = drive !== 0 ? (v * Math.tan(nextSteer)) / WHEELBASE : 0;
+    const vx = Math.sin(yaw) * v;
+    const vz = Math.cos(yaw) * v;
+    body.setLinvel({ x: vx, y: 0, z: vz }, true);
+    body.setAngvel({ x: 0, y: yawRate, z: 0 }, true);
   });
 
   return null;

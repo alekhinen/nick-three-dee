@@ -1,14 +1,15 @@
 import { useGLTF } from "@react-three/drei";
+import { RigidBody } from "@react-three/rapier";
 import type { ComponentProps } from "react";
 import type { Material, Mesh } from "three";
 
-export function TreeTwo(props: ComponentProps<"group">) {
+export function TreeTwo(props: ComponentProps<typeof RigidBody>) {
   const { nodes, materials } = useGLTF("/tree-2.glb") as unknown as {
     nodes: Record<string, Mesh>;
     materials: Record<string, Material>;
   };
   return (
-    <group {...props} dispose={null}>
+    <RigidBody type="fixed" colliders="hull" {...props}>
       <mesh
         castShadow
         receiveShadow
@@ -17,7 +18,7 @@ export function TreeTwo(props: ComponentProps<"group">) {
         position={[9, 5.2, -7]}
         scale={0.3}
       />
-    </group>
+    </RigidBody>
   );
 }
 

@@ -102,15 +102,19 @@ export function TruckCamera({
   const introStartMs = useRef<number | null>(null);
 
   useFrame((state) => {
-    const root = truckRef.current?.root;
+    const body = truckRef.current?.body;
     const ctrl = controls.current;
-    if (!root || !ctrl) {
+    if (!body || !ctrl) {
       return;
     }
 
-    const targetX = root.position.x + LOOK_OFFSET_X;
-    const targetY = root.position.y + LOOK_HEIGHT;
-    const targetZ = root.position.z + LOOK_OFFSET_Z;
+    const truckPos = body.translation();
+    const truckQuat = body.rotation();
+    const truckYaw = 2 * Math.atan2(truckQuat.y, truckQuat.w);
+
+    const targetX = truckPos.x + LOOK_OFFSET_X;
+    const targetY = truckPos.y + LOOK_HEIGHT;
+    const targetZ = truckPos.z + LOOK_OFFSET_Z;
 
     const nowMs = state.clock.elapsedTime * 1000;
     if (introStartMs.current === null) {
@@ -142,7 +146,7 @@ export function TruckCamera({
       captureRestFromCamera(
         camera.position,
         ctrl.target,
-        root.rotation.y,
+        truckYaw,
         restPose.current,
       );
       ctrl.update();
@@ -175,7 +179,7 @@ export function TruckCamera({
         captureRestFromCamera(
           camera.position,
           ctrl.target,
-          root.rotation.y,
+          truckYaw,
           restPose.current,
         );
         drivingPose.current.radius = restPose.current.radius;
@@ -208,7 +212,7 @@ export function TruckCamera({
       captureRestFromCamera(
         camera.position,
         ctrl.target,
-        root.rotation.y,
+        truckYaw,
         restPose.current,
       );
       ctrl.update();
@@ -222,7 +226,7 @@ export function TruckCamera({
         captureRestFromCamera(
           camera.position,
           ctrl.target,
-          root.rotation.y,
+          truckYaw,
           drivingPose.current,
         );
         restPose.current.radius = drivingPose.current.radius;
@@ -231,7 +235,7 @@ export function TruckCamera({
       } else {
         // Idle: lock camera to the stored drivingPose.
         const drv = drivingPose.current;
-        const worldTheta = drv.localTheta + root.rotation.y;
+        const worldTheta = drv.localTheta + truckYaw;
         scratchSpherical.set(drv.radius, drv.phi, worldTheta);
         scratchOffset.setFromSpherical(scratchSpherical);
         camera.position.copy(ctrl.target).add(scratchOffset);
@@ -247,7 +251,7 @@ export function TruckCamera({
     const radius = rest.radius + (drv.radius - rest.radius) * p;
     const phi = rest.phi + (drv.phi - rest.phi) * p;
     const localTheta = lerpAngle(rest.localTheta, drv.localTheta, p);
-    const worldTheta = localTheta + root.rotation.y;
+    const worldTheta = localTheta + truckYaw;
 
     scratchSpherical.set(radius, phi, worldTheta);
     scratchOffset.setFromSpherical(scratchSpherical);

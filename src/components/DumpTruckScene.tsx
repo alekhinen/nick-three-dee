@@ -9,10 +9,16 @@ Title: DumpTruck
 import { useImperativeHandle, useRef } from "react";
 import type { ComponentProps, Ref } from "react";
 import { useGLTF } from "@react-three/drei";
+import {
+  CuboidCollider,
+  RigidBody,
+  type RapierRigidBody,
+} from "@react-three/rapier";
 import type { Group, Material, Mesh } from "three";
 
 export type DumpTruckHandle = {
   root: Group | null;
+  body: RapierRigidBody | null;
   wheels: {
     bl: Group | null;
     br: Group | null;
@@ -25,13 +31,14 @@ type Props = Omit<ComponentProps<"group">, "ref"> & {
   ref?: Ref<DumpTruckHandle>;
 };
 
-export function DumpTruckScene({ ref, ...props }: Props) {
+export function DumpTruckScene({ ref, position, ...props }: Props) {
   const { nodes, materials } = useGLTF("/three-dee-truck.glb") as unknown as {
     nodes: Record<string, Mesh>;
     materials: Record<string, Material>;
   };
 
   const rootRef = useRef<Group>(null);
+  const bodyRef = useRef<RapierRigidBody>(null);
   const blRef = useRef<Group>(null);
   const brRef = useRef<Group>(null);
   const flRef = useRef<Group>(null);
@@ -42,6 +49,9 @@ export function DumpTruckScene({ ref, ...props }: Props) {
     () => ({
       get root() {
         return rootRef.current;
+      },
+      get body() {
+        return bodyRef.current;
       },
       get wheels() {
         return {
@@ -56,8 +66,19 @@ export function DumpTruckScene({ ref, ...props }: Props) {
   );
 
   return (
-    <group ref={rootRef} {...props} dispose={null}>
-      <group rotation={[-Math.PI / 2, 0, 0]}>
+    <RigidBody
+      ref={bodyRef}
+      position={position}
+      colliders={false}
+      enabledTranslations={[true, false, true]}
+      enabledRotations={[false, true, false]}
+      linearDamping={0.8}
+      angularDamping={2}
+      mass={50}
+    >
+      <CuboidCollider args={[1.1, 0.75, 2.1]} density={20} />
+      <group ref={rootRef} {...props} dispose={null}>
+        <group rotation={[-Math.PI / 2, 0, 0]}>
         <mesh
           castShadow
           receiveShadow
@@ -330,8 +351,9 @@ export function DumpTruckScene({ ref, ...props }: Props) {
             />
           </group>
         </group>
+        </group>
       </group>
-    </group>
+    </RigidBody>
   );
 }
 
